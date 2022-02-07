@@ -22,37 +22,52 @@ app.get("/api/user", (request, response) => {
 
 app.get("/api/user/:id", (request, response) => {
   const id = request.params.id;
-
   const user = users.find((user) => user.id === id);
-
   if (user) {
     return response.send({ user });
   }
-
   response.status(404).send({ message: "User not exist" });
 });
 
 app.post("/api/user", (request, response) => {
   const { email, name } = request.body;
   const user = { email, name, id: crypto.randomUUID() };
-
   users.push(user);
-
   response.send(user);
 });
 
 app.put("/api/user/:id", (request, response) => {
   // Retornar o usuário atualizado
   // Caso o usuário não exista, exibir status 404 e por uma message
+  const id = request.params.id;
+  const user = { 
+    email : request.body["email"], 
+    name : request.body["name"],
+    id: id
+  };
 
-  response.send("Hello PUT");
+  let indexToChange = users.findIndex(user => user.id === id);
+  let existUser = indexToChange != -1; 
+  if(existUser){
+    users[indexToChange] = user;
+    return response.status(200).send(users);
+  }
+  response.status(404).send({ message: "User not exist" });
+
 });
 
 app.delete("/api/user/:id", (request, response) => {
   // Retornar status 200 caso o usuário seja removido
   // Retornar status 404 caso o usuário nao existe
+  const id = request.params.id;
+  let indexToRemove = users.findIndex(user => user.id === id);
+  let existUser = indexToRemove != -1; 
+  if(existUser){
+    users.splice(indexToRemove, 1);
+    return response.status(200).send({ message: "OK!" });
+  }
+  response.status(404).send({ message: "User not exist" });
 
-  response.send("Hello DELETE");
 });
 
 app.listen(3000, () => {
